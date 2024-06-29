@@ -1,0 +1,28 @@
+name: Update TwitchAdBlock
+on:
+  workflow_dispatch:
+jobs:
+  update:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@main
+      - uses: actions/setup-node@main
+      - run: |
+          JSON=$(curl -s "https://api.github.com/repos/level3tjg/TwitchAdBlock/releases/latest")
+          URL=$(echo $JSON | jq -r '.assets[0].browser_download_url')
+          if curl --output /dev/null --silent --head --fail "$URL"; then
+            curl -L -o ./TwitchAdBlock-arm64.deb $URL &
+            DOWNLOAD_PID=$!
+          fi
+          JSON=$(curl -sH "Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}" https://api.github.com/repos/EscapeAltDelete/TwitchUpdater/releases/tags/TwitchAdBlock)
+          RID=$(echo $JSON | jq -r '.id')
+          curl -X DELETE -H 'Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}' https://api.github.com/repos/EscapeAltDelete/TwitchUpdater/releases/$RID &
+          DELETE_PID=$!
+          wait $DOWNLOAD_PID $DELETE_PID
+      - uses: ncipollo/release-action@main
+        with:
+          tag: TwitchAdBlock
+          name: TwitchAdBlock
+          body: "Latest release of TwitchAdBlock"
+          token: ${{ secrets.MY_GITHUB_TOKEN }}
+          artifacts: "./TwitchAdBlock-arm64.deb"
