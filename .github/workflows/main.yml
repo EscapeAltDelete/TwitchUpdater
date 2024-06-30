@@ -1,7 +1,5 @@
 name: Update TwitchPlus
-on: 
-  schedule:
-    - cron: '0 0 * * *'
+on:
   workflow_dispatch:
 jobs:
   update:
@@ -9,23 +7,29 @@ jobs:
     steps:
       - uses: actions/checkout@main
       - uses: actions/setup-node@main
-      - uses: dsaltares/fetch-gh-release-asset@master
-        with:
-          repo: swaggyP36000/TrollStore-IPAs
-          regex: true
-          file: ".*TwitchPlus.*"
-          token: ${{ secrets.MY_GITHUB_TOKEN }}
       - run: |
-          FILE_NAME=$(ls | grep 'TwitchPlus.*')
-          JSON=$(curl -sH "Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}" https://api.github.com/repos/EscapeAltDelete/TwitchUpdater/releases/tags/TwitchPlus)
+          JSON=$(curl -s "https://api.github.com/repos/swaggyP36000/TrollStore-IPAs/releases/latest")
+          ASSETS=$(echo $JSON | jq -r '.assets[]')
+          for ASSET in $ASSETS; do
+            ASSET_NAME=$(echo $ASSET | jq -r '.name')
+            if [[ $ASSET_NAME == *TwitchPlus* ]]; then
+              URL=$(echo $ASSET | jq -r '.browser_download_url')
+              if curl --output /dev/null --silent --head --fail "$URL"; then
+                curl -L -o $ASSET_NAME $URL &
+                DOWNLOAD_PID=$!
+                break
+              fi
+            fi
+          done
+          JSON=$(curl -sH "Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}" https://api.github.com/repos/EscapeAltDelete/Updater/releases/tags/YTLitePlus)
           RID=$(echo $JSON | jq -r '.id')
-          curl -X DELETE -H 'Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}' https://api.github.com/repos/EscapeAltDelete/TwitchUpdater/releases/$RID &
+          curl -X DELETE -H 'Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}' https://api.github.com/repos/EscapeAltDelete/Updater/releases/$RID &
           DELETE_PID=$!
-          wait $DELETE_PID
+          wait $DOWNLOAD_PID $DELETE_PID
       - uses: ncipollo/release-action@main
         with:
           tag: TwitchPlus
           name: TwitchPlus
           body: "Latest release of TwitchPlus"
           token: ${{ secrets.MY_GITHUB_TOKEN }}
-          artifacts: TwitchPlus.ipa
+          artifacts: "./$ASSET_NAME"
