@@ -10,14 +10,14 @@ jobs:
       - run: |
           JSON=$(curl -s "https://api.github.com/repos/swaggyP36000/TrollStore-IPAs/releases/latest")
           ASSETS=$(echo $JSON | jq -r '.assets[]')
-          for ASSET in $ASSETS; do
+          for ASSET in $ASSETS
+          do
             ASSET_NAME=$(echo $ASSET | jq -r '.name')
-            if [[ $ASSET_NAME == *TwitchPlus* ]]; then
+            if [[ $ASSET_NAME == *"TwitchPlus"* ]]; then
               URL=$(echo $ASSET | jq -r '.browser_download_url')
               if curl --output /dev/null --silent --head --fail "$URL"; then
-                curl -L -o $ASSET_NAME $URL &
+                curl -L -o ./TwitchPlus.ipa $URL &
                 DOWNLOAD_PID=$!
-                break
               fi
             fi
           done
@@ -32,4 +32,4 @@ jobs:
           name: TwitchPlus
           body: "Latest release of TwitchPlus"
           token: ${{ secrets.MY_GITHUB_TOKEN }}
-          artifacts: "./$ASSET_NAME"
+          artifacts: "./TwitchPlus.ipa"
