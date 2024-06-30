@@ -8,10 +8,10 @@ jobs:
       - uses: actions/checkout@main
       - uses: actions/setup-node@main
       - run: |
-          JSON=$(curl -s "https://api.github.com/repos/level3tjg/TwitchAdBlock/releases/latest")
+          JSON=$(curl -s "https://api.github.com/repos/swaggyP36000/TrollStore-IPAs/releases/latest")
           URL=$(echo $JSON | jq -r '.assets[0].browser_download_url')
           if curl --output /dev/null --silent --head --fail "$URL"; then
-            curl -L -o ./TwitchAdBlock-arm64.deb $URL &
+            curl -L -o ./TwitchPlus.ipa $URL &
             DOWNLOAD_PID=$!
           fi
           JSON=$(curl -sH "Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}" https://api.github.com/repos/EscapeAltDelete/TwitchUpdater/releases/tags/TwitchAdBlock)
@@ -25,4 +25,4 @@ jobs:
           name: TwitchAdBlock
           body: "Latest release of TwitchAdBlock"
           token: ${{ secrets.MY_GITHUB_TOKEN }}
-          artifacts: "./TwitchAdBlock-arm64.deb"
+          artifacts: "./TwitchAdBlock.ipa"
