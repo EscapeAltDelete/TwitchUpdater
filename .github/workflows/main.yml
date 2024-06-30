@@ -21,8 +21,8 @@ jobs:
           wait $DOWNLOAD_PID $DELETE_PID
       - uses: ncipollo/release-action@main
         with:
-          tag: TwitchAdBlock
-          name: TwitchAdBlock
-          body: "Latest release of TwitchAdBlock"
+          tag: TwitchPlus
+          name: TwitchPlus
+          body: "Latest(?) release of TwitchPlus"
           token: ${{ secrets.MY_GITHUB_TOKEN }}
-          artifacts: "./TwitchAdBlock.ipa"
+          artifacts: "./TwitchPlus.ipa"
