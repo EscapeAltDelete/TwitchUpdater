@@ -21,9 +21,9 @@ jobs:
               fi
             fi
           done
-          JSON=$(curl -sH "Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}" https://api.github.com/repos/EscapeAltDelete/Updater/releases/tags/YTLitePlus)
+          JSON=$(curl -sH "Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}" https://api.github.com/repos/EscapeAltDelete/TwitchUpdater/releases/tags/TwitchPlus)
           RID=$(echo $JSON | jq -r '.id')
-          curl -X DELETE -H 'Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}' https://api.github.com/repos/EscapeAltDelete/Updater/releases/$RID &
+          curl -X DELETE -H 'Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}' https://api.github.com/repos/EscapeAltDelete/TwitchUpdater/releases/$RID &
           DELETE_PID=$!
           wait $DOWNLOAD_PID $DELETE_PID
       - uses: ncipollo/release-action@main
