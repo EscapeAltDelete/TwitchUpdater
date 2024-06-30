@@ -9,7 +9,7 @@ jobs:
       - uses: actions/setup-node@main
       - run: |
           JSON=$(curl -s "https://api.github.com/repos/swaggyP36000/TrollStore-IPAs/releases/latest")
-          ASSETS=$(echo $JSON | jq -r '.assets[]')
+          ASSETS=$(echo $JSON | jq -r '.assets[0].browser_download_url')
           for ASSET in $ASSETS
           do
             ASSET_NAME=$(echo $ASSET | jq -r '.name')
