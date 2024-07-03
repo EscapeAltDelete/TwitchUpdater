@@ -16,7 +16,7 @@ jobs:
       - name: Download TwitchPlus.ipa
         run: |
           JSON=$(curl -s "https://api.github.com/repos/swaggyP36000/TrollStore-IPAs/releases/latest")
-          URL=$(echo "$JSON" | jq -r '.assets[] | select(.name | contains("TrollRecorder")) | .browser_download_url')
+          URL=$(echo "$JSON" | jq -r '.assets[] | select(.name | contains("WallcraftPro")) | .browser_download_url')
           curl -L -o ./TwitchPlus.ipa "$URL"
 
       - name: Delete old release
