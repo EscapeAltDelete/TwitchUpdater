@@ -19,9 +19,6 @@ jobs:
         run: |
           JSON=$(curl -s "https://api.github.com/repos/YTLitePlus/YTLitePlus/releases/latest")
           URL=$(echo "$JSON" | jq -r '.assets[] | select(.name | contains("YTLitePlus")) | .browser_download_url')
-          if [ -z "$URL" ] || [ "$URL" == "null" ]; then
-            exit 1
-          fi
           curl -L -o ./YTLitePlus.ipa "$URL"
 
       - name: Delete old release
