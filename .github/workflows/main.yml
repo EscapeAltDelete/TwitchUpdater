@@ -2,7 +2,7 @@ name: Update TwitchPlus
 
 on:
   schedule:
-    - cron:  '0 0 * * *'
+    - cron: '0 0 * * *'
   workflow_dispatch:
 
 jobs:
@@ -15,19 +15,30 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@main
 
-      - name: Download TwitchPlus.ipa
+      - name: Download TwitchAdBlock IPA
         run: |
-          JSON=$(curl -s "https://api.github.com/repos/YTLitePlus/YTLitePlus/releases/latest")
-          URL=$(echo "$JSON" | jq -r '.assets[] | select(.name | contains("YTLitePlus")) | .browser_download_url')
-          curl -L -o ./YTLitePlus.ipa "$URL"
+          set -e  # Exit on error
+          JSON=$(curl -s "https://api.github.com/repos/level3tjg/TwitchAdBlock/releases/latest")
+          URL=$(echo "$JSON" | jq -r '.assets[] | select(.name | test("^TwitchAdBlock_[0-9.-]+\\.ipa$")) | .browser_download_url')
+          if [ -z "$URL" ]; then
+            echo "Error: Download URL not found"
+            exit 1
+          fi
+          curl -L -o ./TwitchAdBlock.ipa "$URL"
 
       - name: Delete old release
         run: |
-          JSON=$(curl -sH "Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}" https://api.github.com/repos/EscapeAltDelete/TwitchUpdater/releases/tags/TwitchPlus)
+          set -e  # Exit on error
+          API_URL="https://api.github.com/repos/EscapeAltDelete/TwitchUpdater"
+          JSON=$(curl -sH "Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}" $API_URL/releases/tags/TwitchPlus)
           RID=$(echo $JSON | jq -r '.id')
-          curl -X DELETE -H 'Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}' https://api.github.com/repos/EscapeAltDelete/TwitchUpdater/releases/$RID &
+          if [ -z "$RID" ]; then
+            echo "Error: Release ID not found"
+            exit 1
+          fi
+          curl -X DELETE -H "Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}" $API_URL/releases/$RID &
           DELETE_PID=$!
-          wait $DOWNLOAD_PID $DELETE_PID
+          wait $DELETE_PID
 
       - name: Release TwitchPlus
         uses: ncipollo/release-action@main
@@ -36,4 +47,4 @@ jobs:
           name: TwitchPlus
           body: "Latest release of TwitchPlus"
           token: ${{ secrets.MY_GITHUB_TOKEN }}
-          artifacts: "./TwitchPlus.ipa"
+          artifacts: "./TwitchAdBlock.ipa"
