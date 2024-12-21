@@ -17,25 +17,15 @@ jobs:
 
       - name: Download TwitchAdBlock IPA
         run: |
-          set -e  # Exit on error
           JSON=$(curl -s "https://api.github.com/repos/level3tjg/TwitchAdBlock/releases/latest")
           URL=$(echo "$JSON" | jq -r '.assets[] | select(.name | test("^TwitchAdBlock_[0-9.-]+\\.ipa$")) | .browser_download_url')
-          if [ -z "$URL" ]; then
-            echo "Error: Download URL not found"
-            exit 1
-          fi
           curl -L -o ./TwitchAdBlock.ipa "$URL"
 
       - name: Delete old release
         run: |
-          set -e  # Exit on error
           API_URL="https://api.github.com/repos/EscapeAltDelete/TwitchUpdater"
           JSON=$(curl -sH "Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}" $API_URL/releases/tags/TwitchPlus)
           RID=$(echo $JSON | jq -r '.id')
-          if [ -z "$RID" ]; then
-            echo "Error: Release ID not found"
-            exit 1
-          fi
           curl -X DELETE -H "Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}" $API_URL/releases/$RID &
           DELETE_PID=$!
           wait $DELETE_PID
