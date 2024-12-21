@@ -1,4 +1,4 @@
-name: Update TwitchPlus
+name: Update TwitchAdBlock
 
 on:
   schedule:
@@ -24,17 +24,17 @@ jobs:
       - name: Delete old release
         run: |
           API_URL="https://api.github.com/repos/EscapeAltDelete/TwitchUpdater"
-          JSON=$(curl -sH "Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}" $API_URL/releases/tags/TwitchPlus)
+          JSON=$(curl -sH "Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}" $API_URL/releases/tags/TwitchAdBlock)
           RID=$(echo $JSON | jq -r '.id')
           curl -X DELETE -H "Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}" $API_URL/releases/$RID &
           DELETE_PID=$!
           wait $DELETE_PID
 
-      - name: Release TwitchPlus
+      - name: Release TwitchAdBlock
         uses: ncipollo/release-action@main
         with:
-          tag: TwitchPlus
-          name: TwitchPlus
-          body: "Latest release of TwitchPlus"
+          tag: TwitchAdBlock
+          name: TwitchAdBlock
+          body: "Latest release of TwitchAdBlock"
           token: ${{ secrets.MY_GITHUB_TOKEN }}
           artifacts: "./TwitchAdBlock.ipa"
