@@ -7,7 +7,9 @@ on:
 
 jobs:
   update:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@main
@@ -21,15 +23,6 @@ jobs:
           URL=$(echo "$JSON" | jq -r '.assets[] | select(.name | test("^TwitchAdBlock_[0-9.-]+\\.ipa$")) | .browser_download_url')
           curl -L -o ./TwitchAdBlock.ipa "$URL"
 
-      - name: Delete old release
-        run: |
-          API_URL="https://api.github.com/repos/EscapeAltDelete/TwitchUpdater"
-          JSON=$(curl -sH "Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}" $API_URL/releases/tags/TwitchAdBlock)
-          RID=$(echo $JSON | jq -r '.id')
-          curl -X DELETE -H "Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}" $API_URL/releases/$RID &
-          DELETE_PID=$!
-          wait $DELETE_PID
-
       - name: Release TwitchAdBlock
         uses: ncipollo/release-action@main
         with:
@@ -38,3 +31,5 @@ jobs:
           body: "Latest release of TwitchAdBlock"
           token: ${{ secrets.MY_GITHUB_TOKEN }}
           artifacts: "./TwitchAdBlock.ipa"
+          allowUpdates: true
+          removeArtifacts: true
